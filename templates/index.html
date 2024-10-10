@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,13 +16,19 @@
             width: 50px;
             height: 50px;
             animation: spin 1s linear infinite;
-            display: none; /* Hidden initially */
+            display: none;
+            /* Hidden initially */
             margin: 20px auto;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Flash message styles */
@@ -37,59 +44,188 @@
         .danger {
             color: red;
         }
+
+        .logo {
+            color: red;
+            font-family: 'quantum-bold', sans-serif;
+            font-weight: 900;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: fixed;
+            top: 2%;
+            left: 2%;
+        }
+
+        /* Carousel styles */
+        .carousel {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-images {
+            display: flex;
+            transition: transform 1s ease;
+            height: 100%
+        }
+
+        .carousel img {
+            width: 100%;
+            height: 100%;
+            flex-shrink: 0;
+        }
+
+        /* Pagination dots */
+        .carousel-pagination {
+            position: absolute;
+            bottom: 1%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .dot {
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .active-dot {
+            background-color: #717171;
+        }
+
+        .copyright{
+            position: fixed;
+            bottom: 1%;
+            left: 1%;
+            font-size: 12px;
+            color: #717171;
+            text-align: center;
+        }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>File Transfer</h1>
 
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
+    <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo.webp') }}" alt="logo" width="200">
+    </div>
+
+    <div class="copyright">
+        © Tractrix Opto Dynamics. All rights reserved.
+    </div>
+
+   
+
+    <div class="right-half">
+        <div class="container">
+            <h2>File Transfer</h2>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
             <ul id="flash-messages">
-              {% for category, message in messages %}
+                {% for category, message in messages %}
                 <li class="{{ category }}">{{ message }}</li>
-              {% endfor %}
+                {% endfor %}
             </ul>
-          {% endif %}
-        {% endwith %}
+            {% endif %}
+            {% endwith %}
 
-        <form id="file-transfer-form" action="/" method="POST" enctype="multipart/form-data">
-            <!-- File input -->
-            <label for="file_path">Choose a file:</label>
-            <input type="file" id="file_path" name="file_path" required>
+            <form id="file-transfer-form" action="/" method="POST" enctype="multipart/form-data">
+                <!-- File input -->
+                <label for="file_path">Choose a file:</label>
+                <input type="file" id="file_path" name="file_path" required>
 
-            <!-- Password input -->
-            <label for="password">Enter password for System:</label>
-            <input type="password" id="password" name="password" required>
+                <!-- Password input -->
+                <label for="password">Enter password for System:</label>
+                <input type="password" id="password" name="password" required>
 
-            <!-- Submit button -->
-            <button type="submit">Transfer</button>
-        </form>
+                <!-- Submit button -->
+                <button type="submit">Transfer</button>
+            </form>
 
-        <!-- Loader -->
-        <div class="loader" id="loader"></div>
+            <!-- Loader -->
+            <div class="loader" id="loader"></div>
+        </div>
+    </div>
+
+    <div class="left-half">
+        <div class="carousel" id="carousel">
+            <div class="carousel-images">
+                <img src="{{ url_for('static', filename='images/image1.jpg') }}" alt="Image 1">
+                <img src="{{ url_for('static', filename='images/image2.jpg') }}" alt="Image 2">
+                <img src="{{ url_for('static', filename='images/image3.jpg') }}" alt="Image 3">
+                <!-- Cloned Image -->
+                <img src="{{ url_for('static', filename='images/image1.jpg') }}" alt="Image 1 Clone">
+            </div>
+        </div>
+        <div class="carousel-pagination" id="pagination">
+            <span class="dot active-dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Get the form and loader
-            const form = document.getElementById('file-transfer-form');
-            const loader = document.getElementById('loader');
-            const flashMessages = document.getElementById('flash-messages');
 
-            // Add event listener to show the loader when form is submitted
-            form.addEventListener('submit', function() {
-                loader.style.display = 'block';  // Show the loader
-            });
 
-            // Auto-hide flash messages after 5 seconds
-            if (flashMessages) {
-                setTimeout(() => {
-                    flashMessages.style.display = 'none';  // Hide flash messages after 5s
-                }, 3000);
+        document.addEventListener("DOMContentLoaded", function () {
+            const imagesContainer = document.querySelector('.carousel-images');
+            const dots = document.querySelectorAll('.dot');
+            const imageCount = dots.length;
+            let currentIndex = 0;
+            let isTransitioning = false;
+
+            // Add transition effect and update dots
+            function updateCarousel() {
+                imagesContainer.style.transition = 'transform 1s ease';
+                imagesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+                dots.forEach(dot => dot.classList.remove('active-dot'));
+                if (currentIndex < imageCount) {
+                    dots[currentIndex].classList.add('active-dot');
+                }
             }
+
+            function showNextImage() {
+                if (isTransitioning) return;
+                isTransitioning = true;
+
+                currentIndex++;
+
+                updateCarousel();
+
+                // Seamless transition when the last (cloned) image is reached
+                if (currentIndex === imageCount) {
+                    setTimeout(() => {
+                        // Disable transition and reset back to the first image
+                        imagesContainer.style.transition = 'none';
+                        currentIndex = 0; // Reset to first image
+                        imagesContainer.style.transform = `translateX(0)`;
+
+                        isTransitioning = false;
+                    }, 1000); // Wait for the transition to finish
+                } else {
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 1000); // Transition is over
+                }
+            }
+
+            // Automatically change images every 3 seconds
+            setInterval(showNextImage, 3000);
         });
+
     </script>
 </body>
+
 </html>
