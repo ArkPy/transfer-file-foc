@@ -1,6 +1,7 @@
 import os
 import wexpect
 from flask import Flask, render_template, request, redirect, url_for, flash
+#transfer file
 
 app = Flask(__name__)
 app.secret_key = 'some_secret_key'  # Required for flashing messages
