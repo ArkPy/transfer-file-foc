@@ -89,7 +89,8 @@
         .carousel-images {
             display: flex;
             transition: transform 1s ease;
-            height: 100%
+            height: 100%;
+            object-fit:fill;
         }
 
         .carousel img {
@@ -188,81 +189,87 @@
     <div class="left-half">
         <div class="carousel" id="carousel">
             <div class="carousel-images">
-                <img src="{{ url_for('static', filename='images/image1.webp') }}" alt="Image 1">
-                <img src="{{ url_for('static', filename='images/image2.webp') }}" alt="Image 2">
-                <img src="{{ url_for('static', filename='images/image3.webp') }}" alt="Image 3">
+                <img src="{{ url_for('static', filename='images/image1.png') }}" alt="Image 1">
+                <img src="{{ url_for('static', filename='images/image2.png') }}" alt="Image 2">
+                <img src="{{ url_for('static', filename='images/image3.png') }}" alt="Image 3">
+                <img src="{{ url_for('static', filename='images/image4.png') }}" alt="Image 4">
+                <img src="{{ url_for('static', filename='images/image5.png') }}" alt="Image 5">
+                <img src="{{ url_for('static', filename='images/image6.png') }}" alt="Image 6">
+                <img src="{{ url_for('static', filename='images/image7.png') }}" alt="Image 7">
                 <!-- Cloned Image -->
-                <img src="{{ url_for('static', filename='images/image1.webp') }}" alt="Image 1 Clone">
+                <img src="{{ url_for('static', filename='images/image1.png') }}" alt="Image 1 Clone">
             </div>
         </div>
         <div class="carousel-pagination" id="pagination">
             <span class="dot active-dot"></span>
             <span class="dot"></span>
             <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
         </div>
-
     </div>
 
     <script>
 
+ document.addEventListener("DOMContentLoaded", function () {
+            const imagesContainer = document.querySelector('.carousel-images');
+            const dots = document.querySelectorAll('.dot');
+            const imageCount = dots.length;
+            let currentIndex = 0;
+            let isTransitioning = false;
 
-document.addEventListener("DOMContentLoaded", function () {
-    const imagesContainer = document.querySelector('.carousel-images');
-    const dots = document.querySelectorAll('.dot');
-    const imageCount = dots.length;
-    let currentIndex = 0;
-    let isTransitioning = false;
+            // Add transition effect and update dots
+            function updateCarousel() {
+                imagesContainer.style.transition = 'transform 1s ease';
+                imagesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
 
-    // Add transition effect and update dots
-    function updateCarousel() {
-        imagesContainer.style.transition = 'transform 1s ease';
-        imagesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-
-        dots.forEach(dot => dot.classList.remove('active-dot'));
-        if (currentIndex < imageCount) {
-            dots[currentIndex].classList.add('active-dot');
-        } else {
-            dots[0].classList.add('active-dot'); // Make sure the first dot is active after looping
-        }
-    }
-
-    function showNextImage() {
-        if (isTransitioning) return;
-        isTransitioning = true;
-
-        currentIndex++;
-
-        // Check if currentIndex exceeds image count and adjust accordingly
-        if (currentIndex > imageCount) {
-            currentIndex = 1; // Reset to first actual image (skip the cloned image)
-        }
-
-        updateCarousel();
-
-        // Seamless transition when the last (cloned) image is reached
-        if (currentIndex === imageCount) {
-            setTimeout(() => {
-                // Disable transition and reset back to the first image
-                imagesContainer.style.transition = 'none';
-                currentIndex = 0; // Reset to first image
-                imagesContainer.style.transform = `translateX(0)`;
-
-                // Ensure the first dot is active again
                 dots.forEach(dot => dot.classList.remove('active-dot'));
-                dots[0].classList.add('active-dot');
+                if (currentIndex < imageCount) {
+                    dots[currentIndex].classList.add('active-dot');
+                } else {
+                    dots[0].classList.add('active-dot'); // Make sure the first dot is active after looping
+                }
+            }
 
-                isTransitioning = false;
-            }, 1000); // Wait for the transition to finish
-        } else {
-            setTimeout(() => {
-                isTransitioning = false;
-            }, 1000); // Transition is over
-        }
-    }
+            function showNextImage() {
+                if (isTransitioning) return;
+                isTransitioning = true;
 
-    // Automatically change images every 3 seconds
-    setInterval(showNextImage, 3000);
-});
+                currentIndex++;
+
+                // Check if currentIndex exceeds image count and adjust accordingly
+                if (currentIndex > imageCount) {
+                    currentIndex = 1; // Reset to first actual image (skip the cloned image)
+                }
+
+                updateCarousel();
+
+                // Seamless transition when the last (cloned) image is reached
+                if (currentIndex === imageCount) {
+                    setTimeout(() => {
+                        // Disable transition and reset back to the first image
+                        imagesContainer.style.transition = 'none';
+                        currentIndex = 0; // Reset to first image
+                        imagesContainer.style.transform = `translateX(0)`;
+
+                        // Ensure the first dot is active again
+                        dots.forEach(dot => dot.classList.remove('active-dot'));
+                        dots[0].classList.add('active-dot');
+
+                        isTransitioning = false;
+                    }, 1000); // Wait for the transition to finish
+                } else {
+                    setTimeout(() => {
+                        isTransitioning = false;
+                    }, 1000); // Transition is over
+                }
+            }
+
+            // Automatically change images every 3 seconds
+            setInterval(showNextImage, 3000);
+        });
 
         document.addEventListener("DOMContentLoaded", function() {
             // Get the form and loader
